@@ -439,7 +439,7 @@ if st.session_state.results:
                 )
                 st.markdown(chips_html, unsafe_allow_html=True)
 
-    # ── Download reports ────────────────────────────────────────────────────────
+   # ── Download reports ────────────────────────────────────────
 
 st.markdown("<hr class='section-divider'>", unsafe_allow_html=True)
 
@@ -452,12 +452,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Create 3 equal columns
-dcol1, dcol2, dcol3 = st.columns(3)
+dcol1, dcol2, dcol3 = st.columns([1, 1, 1])
 
-# CSV button
 with dcol1:
-    csv_data = generate_csv(results)
+    csv_data = generate_csv(st.session_state.results)
 
     st.download_button(
         label="⬇ Download CSV",
@@ -467,9 +465,8 @@ with dcol1:
         use_container_width=True,
     )
 
-# JSON button
 with dcol2:
-    json_data = generate_json(results)
+    json_data = generate_json(st.session_state.results)
 
     st.download_button(
         label="⬇ Download JSON",
@@ -479,9 +476,8 @@ with dcol2:
         use_container_width=True,
     )
 
-# PDF button
 with dcol3:
-    pdf_data = generate_pdf(results)
+    pdf_data = generate_pdf(st.session_state.results)
 
     st.download_button(
         label="⬇ Download PDF",
