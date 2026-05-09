@@ -14,7 +14,6 @@ from reportlab.platypus import (
     Spacer,
     Table,
     TableStyle,
-    PageBreak,
 )
 
 from reportlab.lib import colors
@@ -27,32 +26,43 @@ from reportlab.platypus.flowables import HRFlowable
 # Helpers
 # ─────────────────────────────────────────────────────────────
 
+def _safe_str(value) -> str:
+    """Convert safely to string."""
+    if value is None:
+        return ""
+    return str(value)
+
+
 def _flatten_result(result: Dict[str, Any]) -> Dict[str, Any]:
+
+    if not isinstance(result, dict):
+        result = {}
 
     sources = result.get("sources", [])
 
+    if not isinstance(sources, list):
+        sources = []
+
     return {
-        "claim_index":
-            result.get("index", "") + 1
+        "claim_index": (
+            result.get("index", 0) + 1
             if isinstance(result.get("index"), int)
-            else "",
+            else 0
+        ),
 
-        "claim": result.get("claim", ""),
+        "claim": _safe_str(result.get("claim")),
 
-        "verdict": result.get("status", ""),
+        "verdict": _safe_str(result.get("status")),
 
-        "correct_fact": result.get("correct_fact", ""),
+        "correct_fact": _safe_str(result.get("correct_fact")),
 
-        "explanation": result.get("explanation", ""),
+        "explanation": _safe_str(result.get("explanation")),
 
-        "source_1":
-            sources[0] if len(sources) > 0 else "",
+        "source_1": _safe_str(sources[0]) if len(sources) > 0 else "",
 
-        "source_2":
-            sources[1] if len(sources) > 1 else "",
+        "source_2": _safe_str(sources[1]) if len(sources) > 1 else "",
 
-        "source_3":
-            sources[2] if len(sources) > 2 else "",
+        "source_3": _safe_str(sources[2]) if len(sources) > 2 else "",
     }
 
 
@@ -62,19 +72,43 @@ def _flatten_result(result: Dict[str, Any]) -> Dict[str, Any]:
 
 def generate_csv(results: List[Dict[str, Any]]) -> bytes:
 
-    rows = [_flatten_result(r) for r in results]
+    try:
+        rows = [_flatten_result(r) for r in results if r]
 
-    df = pd.DataFrame(rows)
+        if not rows:
+            rows = [{
+                "claim_index": "",
+                "claim": "No results available",
+                "verdict": "",
+                "correct_fact": "",
+                "explanation": "",
+                "source_1": "",
+                "source_2": "",
+                "source_3": "",
+            }]
 
-    output = io.BytesIO()
+        df = pd.DataFrame(rows)
 
-    df.to_csv(
-        output,
-        index=False,
-        encoding="utf-8"
-    )
+        output = io.StringIO()
 
-    return output.getvalue()
+        df.to_csv(
+            output,
+            index=False
+        )
+
+        return output.getvalue().encode("utf-8")
+
+    except Exception as e:
+
+        error_df = pd.DataFrame([{
+            "error": f"CSV generation failed: {e}"
+        }])
+
+        output = io.StringIO()
+
+        error_df.to_csv(output, index=False)
+
+        return output.getvalue().encode("utf-8")
 
 
 # ─────────────────────────────────────────────────────────────
@@ -87,29 +121,26 @@ def generate_json(results: List[Dict[str, Any]]) -> str:
 
     for r in results:
 
-        export.append(
-            {
-                "claim_index":
-                    r.get("index", 0) + 1
-                    if isinstance(r.get("index"), int)
-                    else 0,
+        if not isinstance(r, dict):
+            continue
 
-                "claim":
-                    r.get("claim", ""),
+        export.append({
+            "claim_index": (
+                r.get("index", 0) + 1
+                if isinstance(r.get("index"), int)
+                else 0
+            ),
 
-                "verdict":
-                    r.get("status", ""),
+            "claim": _safe_str(r.get("claim")),
 
-                "correct_fact":
-                    r.get("correct_fact", ""),
+            "verdict": _safe_str(r.get("status")),
 
-                "explanation":
-                    r.get("explanation", ""),
+            "correct_fact": _safe_str(r.get("correct_fact")),
 
-                "sources":
-                    r.get("sources", []),
-            }
-        )
+            "explanation": _safe_str(r.get("explanation")),
+
+            "sources": r.get("sources", []),
+        })
 
     return json.dumps(
         export,
@@ -123,9 +154,6 @@ def generate_json(results: List[Dict[str, Any]]) -> str:
 # ─────────────────────────────────────────────────────────────
 
 def generate_pdf(results: List[Dict[str, Any]]) -> bytes:
-    """
-    Generate an attractive PDF report.
-    """
 
     buffer = io.BytesIO()
 
@@ -161,7 +189,7 @@ def generate_pdf(results: List[Dict[str, Any]]) -> bytes:
         Spacer(1, 20),
     ])
 
-    # ── Summary Stats ─────────────────
+    # ── Summary ───────────────────────
 
     counts = {
         "Verified": 0,
@@ -171,7 +199,12 @@ def generate_pdf(results: List[Dict[str, Any]]) -> bytes:
     }
 
     for r in results:
+
+        if not isinstance(r, dict):
+            continue
+
         status = r.get("status", "Not Enough Evidence")
+
         counts[status] = counts.get(status, 0) + 1
 
     summary_data = [
@@ -200,13 +233,15 @@ def generate_pdf(results: List[Dict[str, Any]]) -> bytes:
 
     elements.append(Spacer(1, 25))
 
-    # ── Detailed Claims ───────────────
+    # ── Claims ────────────────────────
 
     for i, r in enumerate(results, 1):
 
-        status = r.get("status", "Unknown")
+        if not isinstance(r, dict):
+            continue
 
-        # Verdict color
+        status = _safe_str(r.get("status", "Unknown"))
+
         if status == "Verified":
             verdict_color = "#15803d"
 
@@ -220,19 +255,12 @@ def generate_pdf(results: List[Dict[str, Any]]) -> bytes:
             verdict_color = "#1d4ed8"
 
         header = Paragraph(
-            f"""
-            <font size=16>
-            <b>Claim {i}</b>
-            </font>
-            """,
+            f"<font size=16><b>Claim {i}</b></font>",
             styles["Heading2"]
         )
 
         claim = Paragraph(
-            f"""
-            <b>Claim:</b><br/>
-            {r.get("claim", "")}
-            """,
+            f"<b>Claim:</b><br/>{_safe_str(r.get('claim'))}",
             styles["BodyText"]
         )
 
@@ -247,30 +275,26 @@ def generate_pdf(results: List[Dict[str, Any]]) -> bytes:
         )
 
         correct_fact = Paragraph(
-            f"""
-            <b>Correct Fact:</b><br/>
-            {r.get("correct_fact", "")}
-            """,
+            f"<b>Correct Fact:</b><br/>{_safe_str(r.get('correct_fact'))}",
             styles["BodyText"]
         )
 
         explanation = Paragraph(
-            f"""
-            <b>Explanation:</b><br/>
-            {r.get("explanation", "")}
-            """,
+            f"<b>Explanation:</b><br/>{_safe_str(r.get('explanation'))}",
             styles["BodyText"]
         )
 
+        sources_list = r.get("sources", [])
+
+        if not isinstance(sources_list, list):
+            sources_list = []
+
         sources_html = "<br/>".join(
-            r.get("sources", [])
+            [_safe_str(s) for s in sources_list]
         )
 
         sources = Paragraph(
-            f"""
-            <b>Sources:</b><br/>
-            {sources_html}
-            """,
+            f"<b>Sources:</b><br/>{sources_html}",
             styles["BodyText"]
         )
 
