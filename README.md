@@ -1,138 +1,317 @@
 # 🔍 Fact-Check Agent
 
-> AI-powered truth layer for marketing and business documents.  
-> Upload a PDF → extract factual claims → verify against live web data → get a structured report.
-
-![Fact-Check Agent Demo](assets/demo_video.mp4)
-
-**Live App:** [https://your-app.streamlit.app](https://your-app.streamlit.app) *(replace after deployment)*
+> AI-powered truth layer for PDFs, marketing decks, whitepapers, and business documents.  
+> Upload a PDF → extract factual claims → verify against live web data → generate downloadable reports.
 
 ---
 
-## Features
+## ✨ Features
 
 | Feature | Details |
 |---|---|
-| 📄 PDF Upload | Drag-and-drop or browse; up to 50 MB |
-| 🤖 AI Claim Extraction | GPT-4.1-mini identifies only measurable factual claims |
-| 🌐 Live Web Search | Tavily retrieves top 5 sources per claim |
-| ✅ Automated Verification | Claims classified as Verified / Inaccurate / False / Not Enough Evidence |
-| 📊 Results Dashboard | Color-coded verdicts, corrected facts, explanations, source links |
-| ⬇️ Downloadable Reports | Export as CSV or JSON |
-| ⚡ Parallel Processing | ThreadPoolExecutor for fast multi-claim verification |
-| 💾 Search Caching | Avoids duplicate API calls within a session |
+| 📄 PDF Upload | Upload research papers, reports, pitch decks, and whitepapers |
+| 🤖 AI Claim Extraction | DeepSeek V3 extracts measurable factual claims only |
+| 🌐 Live Web Verification | Tavily performs real-time web search for evidence |
+| ✅ Intelligent Fact Checking | Claims classified as Verified / Inaccurate / False / Not Enough Evidence |
+| 📊 Interactive Dashboard | Modern cyberpunk UI with verdict analytics |
+| 🧠 Corrected Facts | Provides corrected real-world information for inaccurate claims |
+| 🔗 Source Attribution | Displays supporting evidence links |
+| ⚡ Parallel Verification | Multi-threaded verification for faster processing |
+| ⬇️ Export Reports | Download reports as CSV, JSON, and Styled PDF |
+| 🎨 Premium UI | Futuristic dark-themed Streamlit interface |
 
 ---
 
-## Local Setup
+# 🖥️ Live Demo
 
-### Prerequisites
-- Python 3.10+
-- OpenAI API key ([platform.openai.com](https://platform.openai.com))
-- Tavily API key ([tavily.com](https://tavily.com))
+**Live App:**  
+https://your-app.streamlit.app
 
-### Installation
-
-```bash
-# 1. Clone the repo
-git clone https://github.com/your-username/fact-check-agent.git
-cd fact-check-agent
-
-# 2. Create and activate a virtual environment
-python -m venv .venv
-source .venv/bin/activate      # Windows: .venv\Scripts\activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Add your API keys
-#    Edit .streamlit/secrets.toml — already created from the template:
-nano .streamlit/secrets.toml
-```
-
-**`.streamlit/secrets.toml`:**
-```toml
-OPENAI_API_KEY = "sk-..."
-TAVILY_API_KEY = "tvly-..."
-```
-
-### Run
-
-```bash
-streamlit run app.py
-```
-
-Open [http://localhost:8501](http://localhost:8501) in your browser.
+> Replace with your deployed Streamlit URL.
 
 ---
 
-## Project Structure
+# 📸 Screenshots
 
+## Upload Interface
+
+Add screenshot here:
+
+```text
+assets/upload_ui.png
 ```
+
+## Verification Dashboard
+
+```text
+assets/dashboard.png
+```
+
+## PDF Report
+
+```text
+assets/pdf_report.png
+```
+
+---
+
+# 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Streamlit |
+| AI Models | DeepSeek V3 |
+| Web Search | Tavily API |
+| PDF Parsing | PyMuPDF |
+| Report Export | Pandas + ReportLab |
+| Concurrency | ThreadPoolExecutor |
+
+---
+
+# 📂 Project Structure
+
+```bash
 fact-check-agent/
 │
-├── app.py                    # Main Streamlit application
+├── app.py
 ├── requirements.txt
 ├── README.md
 ├── .gitignore
 │
 ├── .streamlit/
-│   ├── secrets.toml          # API keys (not committed)
-│   └── config.toml           # Theme & server settings
+│   ├── secrets.toml
+│   └── config.toml
 │
 ├── utils/
 │   ├── __init__.py
-│   ├── pdf_extractor.py      # PyMuPDF text extraction
-│   ├── claim_extractor.py    # OpenAI claim identification
-│   ├── web_search.py         # Tavily web search + caching
-│   ├── verifier.py           # OpenAI claim verification
-│   ├── report_generator.py   # CSV / JSON export
-│   └── helpers.py            # Shared utilities
+│   ├── pdf_extractor.py
+│   ├── claim_extractor.py
+│   ├── verifier.py
+│   ├── web_search.py
+│   ├── report_generator.py
+│   └── helpers.py
 │
-├── sample_pdfs/              # Place test PDFs here
-└── assets/
-    └── demo_video.mp4
+├── assets/
+│   ├── dashboard.png
+│   ├── upload_ui.png
+│   ├── pdf_report.png
+│   └── demo_video.mp4
+│
+└── sample_pdfs/
 ```
 
 ---
 
-## Deployment on Streamlit Community Cloud
+# ⚙️ Local Setup
 
-1. Push your repository to GitHub (ensure `secrets.toml` is in `.gitignore`).
-2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**.
-3. Select your repository and set **Main file path** to `app.py`.
-4. Under **Advanced settings → Secrets**, paste:
-   ```toml
-   OPENAI_API_KEY = "sk-..."
-   TAVILY_API_KEY = "tvly-..."
-   ```
-5. Click **Deploy**.
+## 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/your-username/fact-check-agent.git
+
+cd fact-check-agent
+```
 
 ---
 
-## Cost Estimation
+## 2️⃣ Create Virtual Environment
 
-| Operation | Model | Cost per claim (est.) |
-|---|---|---|
-| Claim extraction | gpt-4.1-mini | ~$0.001 (one-time per doc) |
-| Web search | Tavily | ~$0.005 per query |
-| Verification | gpt-4.1-mini | ~$0.002 per claim |
+### Windows
 
-For a 20-claim document: **≈ $0.15–0.20 total**.
+```bash
+python -m venv .venv
 
----
+.venv\Scripts\activate
+```
 
-## Configuration
+### Linux / macOS
 
-| Setting | Location | Default |
-|---|---|---|
-| Max claims per doc | `app.py → MAX_CLAIMS` | 20 |
-| Parallel workers | `app.py → MAX_WORKERS` | 5 |
-| Max text sent to AI | `claim_extractor.py → max_chars` | 12,000 |
-| Search results per claim | `web_search.py → max_results` | 5 |
+```bash
+python3 -m venv .venv
+
+source .venv/bin/activate
+```
 
 ---
 
-## License
+## 3️⃣ Install Dependencies
 
-MIT © 2024 — feel free to use, modify, and deploy.
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# 🔑 API Keys Setup
+
+Create:
+
+```bash
+.streamlit/secrets.toml
+```
+
+Add:
+
+```toml
+DEEPSEEK_API_KEY = "your_deepseek_api_key"
+TAVILY_API_KEY = "your_tavily_api_key"
+```
+
+---
+
+# ▶️ Run Application
+
+```bash
+streamlit run app.py
+```
+
+Open:
+
+```text
+http://localhost:8501
+```
+
+---
+
+# ☁️ Streamlit Cloud Deployment
+
+## Step 1 — Push to GitHub
+
+```bash
+git add .
+git commit -m "Initial commit"
+git push
+```
+
+---
+
+## Step 2 — Deploy
+
+Go to:
+
+https://share.streamlit.io
+
+Create a new app and select:
+
+- Repository
+- Branch
+- `app.py`
+
+---
+
+## Step 3 — Add Secrets
+
+In Streamlit Cloud:
+
+### Advanced Settings → Secrets
+
+Paste:
+
+```toml
+DEEPSEEK_API_KEY = "your_key"
+TAVILY_API_KEY = "your_key"
+```
+
+---
+
+# 📊 Verdict Categories
+
+| Verdict | Meaning |
+|---|---|
+| ✅ Verified | Claim matches credible sources |
+| ⚠️ Inaccurate | Claim partially correct but outdated/wrong |
+| ❌ False | Claim contradicted by evidence |
+| 🔵 Not Enough Evidence | Insufficient trustworthy information |
+
+---
+
+# 📥 Export Options
+
+The app supports downloading:
+
+- CSV Report
+- JSON Report
+- Styled PDF Report
+
+The PDF report includes:
+
+- Verdict summaries
+- Corrected facts
+- Evidence links
+- Professional formatting
+
+---
+
+# ⚡ Performance
+
+| Setting | Default |
+|---|---|
+| Max Claims | 20 |
+| Parallel Workers | 5 |
+| Max Text Length | 12,000 chars |
+| Search Results per Claim | 5 |
+
+---
+
+# 💰 Estimated API Cost
+
+| Operation | Cost |
+|---|---|
+| Claim Extraction | ~$0.001 per document |
+| Tavily Search | ~$0.005/query |
+| Verification | ~$0.002/claim |
+
+Typical 20-claim PDF:
+
+```text
+≈ $0.10 – $0.20 total
+```
+
+---
+
+# 🧪 Testing the System
+
+Use PDFs containing:
+
+- Fake statistics
+- Outdated market numbers
+- Incorrect years
+- Wrong technical specs
+
+The app should:
+
+✅ Detect inaccuracies  
+✅ Provide corrected facts  
+✅ Link evidence sources
+
+---
+
+# 🚀 Future Improvements
+
+- OCR support for scanned PDFs
+- Multi-language fact checking
+- Hallucination confidence score
+- Citation reliability ranking
+- AI-generated summary reports
+- Authentication & user history
+- Vector database memory
+
+---
+
+# 📜 License
+
+MIT License © 2026
+
+Free to use, modify, and deploy.
+
+---
+
+# 👨‍💻 Author
+
+Developed by Mohammad Ayan Siddiqui
+
+Built with:
+- Streamlit
+- DeepSeek
+- Tavily
+- Python
