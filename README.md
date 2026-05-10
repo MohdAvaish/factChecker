@@ -81,9 +81,9 @@ fact-check-agent/
 ## 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/your-username/fact-check-agent.git
+git clone https://github.com/MohdAvaish/factChecker.git
 
-cd fact-check-agent
+cd factChecker
 ```
 
 ---
