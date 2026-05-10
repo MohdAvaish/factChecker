@@ -29,32 +29,6 @@ https://factchecker3.streamlit.app
 
 > Replace with your deployed Streamlit URL.
 
----
-
-# 📸 Screenshots
-
-## Upload Interface
-
-Add screenshot here:
-
-```text
-assets/upload_ui.png
-```
-
-## Verification Dashboard
-
-```text
-assets/dashboard.png
-```
-
-## PDF Report
-
-```text
-assets/pdf_report.png
-```
-
----
-
 # 🛠️ Tech Stack
 
 | Layer | Technology |
