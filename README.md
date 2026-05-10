@@ -25,7 +25,7 @@
 # 🖥️ Live Demo
 
 **Live App:**  
-https://your-app.streamlit.app
+https://factchecker3.streamlit.app
 
 > Replace with your deployed Streamlit URL.
 
